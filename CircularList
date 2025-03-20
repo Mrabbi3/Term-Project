@@ -1,0 +1,130 @@
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public  class CircularList<E> implements Iterable<E> {
+
+	private Node<E> current; // Reference to current node
+	private int size; // Number of elements in circular list
+	
+	private static class Node<E> {
+		E data;
+		Node<E> next;
+		
+		// Constructor
+		Node(E data) {
+			this.data = data;
+			this.next = null;
+		}
+	}
+	
+	// Constructor
+	public CircularList() {
+		current = null; // Initialize an empty list
+		size = 0; // Initialize number of elements
+	}
+	
+	//--------------------------------------------------
+	// Adds a node with input data at current position
+	//--------------------------------------------------
+	public void add(E data) {
+		Node<E> newNode = new Node<E>(data); // Create new node
+		
+		// If list is empty
+		if (current == null) {
+			// Make new node point to itself
+			newNode.next = newNode;
+			current = newNode;
+		} else {
+			// Insert new node after the current node
+			newNode.next = current.next;
+			current.next = newNode;
+		}
+		size++; // Increment size
+	}
+	//-------------------------------------------
+	// Removes the node at the current position
+	//-------------------------------------------
+	public void remove() {
+		// If list is empty
+		if (current == null) {
+			throw new NoSuchElementException();
+		}
+		// If list has one element
+		if (size == 1) {
+			current = null; // Remove current
+		} else {
+			Node<E> prev = current;
+			// Traverse the list until prev is the node before current
+			while (prev.next != current) {
+				prev = prev.next; 
+			}
+			// Remove element at current position
+			prev.next = current.next;
+			current = prev.next; // Assign the node after prev to be the current node
+		}
+		size--; // Decrement size
+	}
+	
+	//-----------------------------------------
+	// Returns number of elements in the list
+	//-----------------------------------------
+	public int size() {
+		return size;
+	}
+	
+	public E get() {
+		if (current == null) {
+			throw new NoSuchElementException();
+		}
+		return current.data;
+	}
+	
+	public void next() {
+		if (current != null) {
+			current = current.next;
+		}
+	}
+
+
+	//----------------------------
+	// Iterator for CircularList
+	//----------------------------
+	@Override
+	public Iterator<E> iterator() {
+		return new CircularListIterator();
+	}
+	
+	public class CircularListIterator implements Iterator<E> {
+		private Node<E> iterCurrent; // Current node in the iteration
+		private int count; // Number of elements traversed so far
+		
+		// Constructor
+		public CircularListIterator() {
+			iterCurrent = current; // Start from current node
+			count = 0; // Initialize the count
+		}
+		
+		// Returns true unless list is empty
+		@Override
+		public boolean hasNext() {
+			return count < size; // Stop when all elements have been traversed
+		}
+		
+		@Override
+		public E next() {
+			if (!hasNext()) {
+				throw new NoSuchElementException();
+			}
+			E data = iterCurrent.data; // Get current node data
+			iterCurrent = iterCurrent.next; // Traverse to next node
+			count++; // Increment size
+			return data; 
+			
+		}
+		
+		public void remove() {
+			// TODO implement remove iterator operator
+			throw new UnsupportedOperationException();
+		}
+	}
+}
